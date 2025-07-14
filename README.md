@@ -8,6 +8,11 @@ Original repo: https://github.com/Westlake-AGI-Lab/Distill-Any-Depth
 
 Huggingface demo: https://huggingface.co/spaces/xingyang1/Distill-Any-Depth
 
+## How to Use
+
+1. Clone this repo to `ComfyUI/custom_nodes` 
+2. Install requirements: `pip install -r requirements.txt`
+
 ## Model Support
 
 - [x] [Large model](https://huggingface.co/xingyang1/Distill-Any-Depth/tree/main/large)
