@@ -8,7 +8,7 @@ from .dinov2 import DINOv2
 from .util.blocks import FeatureFusionBlock, _make_scratch
 from .util.transform import Resize, NormalizeImage, PrepareForNet
 from huggingface_hub import PyTorchModelHubMixin, hf_hub_download
-from geobench.modeling.necks.image_projector import ImageProjModel
+# from geobench.modeling.necks.image_projector import ImageProjModel
 
 
 def _make_fusion_block(features, use_bn, size=None):

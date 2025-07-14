@@ -8,22 +8,13 @@ import numpy as np
 import cv2
 from PIL import Image
 
-# Try to import Distill-Any-Depth related modules
-import sys
 import os
-current_dir = os.path.dirname(os.path.abspath(__file__))
-if current_dir not in sys.path:
-    sys.path.insert(0, current_dir)
 
-try:
-    from distillanydepth.modeling.archs.dam.dam import DepthAnything
-    from distillanydepth.utils.image_util import chw2hwc, colorize_depth_maps
-    from distillanydepth.midas.transforms import Resize, NormalizeImage, PrepareForNet
-    from torchvision.transforms import Compose
-    DISTILL_AVAILABLE = True
-except ImportError as e:
-    print(f"Warning: Failed to import Distill-Any-Depth modules: {e}")
-    DISTILL_AVAILABLE = False
+from .distillanydepth.modeling.archs.dam.dam import DepthAnything
+from .distillanydepth.utils.image_util import chw2hwc, colorize_depth_maps
+from .distillanydepth.midas.transforms import Resize, NormalizeImage, PrepareForNet
+from torchvision.transforms import Compose
+
 
 import logging
 log = logging.getLogger(__name__)
@@ -45,9 +36,6 @@ class DownloadDistillAnyDepthModel:
     CATEGORY = "DistillAnyDepth"
 
     def loadmodel(self, model):
-        if not DISTILL_AVAILABLE:
-            raise ImportError("Distill-Any-Depth module is not available, please check installation")
-        
         # Device management
         device = mm.get_torch_device()
         offload_device = mm.unet_offload_device()
@@ -167,9 +155,6 @@ class DistillAnyDepthProcessImage:
     CATEGORY = "DistillAnyDepth"
     
     def process_image(self, pipeline, image, processing_resolution, output_type):
-        if not DISTILL_AVAILABLE:
-            raise ImportError("Distill-Any-Depth module is not available, please check installation")
-        
         # Get model and device information
         model = pipeline["model"]
         device = pipeline["device"]

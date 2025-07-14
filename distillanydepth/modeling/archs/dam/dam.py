@@ -4,8 +4,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from huggingface_hub import PyTorchModelHubMixin, hf_hub_download
-from distillanydepth.modeling.backbones.vit.ViT_DINO import vit_large, vit_giant2, vit_base, vit_small
-from distillanydepth.modeling.backbones.vit.ViT_DINO_reg import vit_large_reg, vit_giant2_reg
+from ...backbones.vit.ViT_DINO import vit_large, vit_giant2, vit_base, vit_small
+from ...backbones.vit.ViT_DINO_reg import vit_large_reg, vit_giant2_reg
 from timm.models.vision_transformer import vit_large_patch16_224, vit_large_patch14_224
 
 def compute_depth_expectation(prob, depth_values):
@@ -399,7 +399,7 @@ class DepthAnything(nn.Module, PyTorchModelHubMixin):
                 self.backbone = vit_small(checkpoint=None, del_mask_token=del_mask_token)
 
             elif encoder == 'vitg':
-                from geobench.depthanything_v2.dinov2 import DINOv2
+                from ....depth_anything_v2.dinov2 import DINOv2
                 checkpoint='data/weights/dinov2/dinov2_vitg14_pretrain.pth'
                 self.backbone = DINOv2(model_name=encoder)
                 miss, unexpected = self.backbone.load_state_dict(torch.load(checkpoint, map_location='cpu'), strict=False)
