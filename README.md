@@ -8,7 +8,17 @@ Original repo: https://github.com/Westlake-AGI-Lab/Distill-Any-Depth
 
 Huggingface demo: https://huggingface.co/spaces/xingyang1/Distill-Any-Depth
 
+## Updates
+
+- [2025-07-18] 🌟🌟🌟 Support `small`, `base`, `teacher-large` model.
+
 ## How to Use
+
+### ComfyUI-Manager
+
+Run ComfyUI → `Manager` → `Custom Nodes Manager` → search and install `Comfyui-Distill-Any-Depth`
+
+### Git Clone
 
 1. Clone this repo to `ComfyUI/custom_nodes` 
 2. Install requirements: `pip install -r requirements.txt`
@@ -16,9 +26,9 @@ Huggingface demo: https://huggingface.co/spaces/xingyang1/Distill-Any-Depth
 ## Model Support
 
 - [x] [Large model](https://huggingface.co/xingyang1/Distill-Any-Depth/tree/main/large)
-- [ ] [Small model](https://huggingface.co/xingyang1/Distill-Any-Depth/tree/main/small)
-- [ ] [Base model](https://huggingface.co/xingyang1/Distill-Any-Depth/tree/main/base)
-- [ ] [Teacher-Large model](https://huggingface.co/xingyang1/Distill-Any-Depth/tree/main/Distill-Any-Depth-Dav2-Teacher-Large-2w-iter)
+- [x] [Small model](https://huggingface.co/xingyang1/Distill-Any-Depth/tree/main/small)
+- [x] [Base model](https://huggingface.co/xingyang1/Distill-Any-Depth/tree/main/base)
+- [x] [Teacher-Large model](https://huggingface.co/xingyang1/Distill-Any-Depth/tree/main/Distill-Any-Depth-Dav2-Teacher-Large-2w-iter)
 
 ## Acknowledgements
 

@@ -15,6 +15,16 @@ from .distillanydepth.utils.image_util import chw2hwc, colorize_depth_maps
 from .distillanydepth.midas.transforms import Resize, NormalizeImage, PrepareForNet
 from torchvision.transforms import Compose
 
+# Try to import DepthAnythingV2, use DepthAnything as fallback if failed
+try:
+    from .distillanydepth.depth_anything_v2.dpt import DepthAnythingV2
+    DEPTH_ANYTHING_V2_AVAILABLE = True
+except ImportError as e:
+    print(f"Warning: DepthAnythingV2 import failed: {e}")
+    print("Will use DepthAnything as fallback for Base and Small models")
+    DepthAnythingV2 = DepthAnything  # Use DepthAnything as fallback
+    DEPTH_ANYTHING_V2_AVAILABLE = False
+
 
 import logging
 log = logging.getLogger(__name__)
@@ -24,7 +34,7 @@ class DownloadDistillAnyDepthModel:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "model":(["Distill-Any-Depth-Large",],
+                "model":(["Distill-Any-Depth-Large", "Distill-Any-Depth-Base", "Distill-Any-Depth-Small", "Distill-Any-Depth-Teacher-Large-2w-iter"],
                         {"default": "Distill-Any-Depth-Large"}),
             }
         }
@@ -40,22 +50,89 @@ class DownloadDistillAnyDepthModel:
         device = mm.get_torch_device()
         offload_device = mm.unet_offload_device()
         
-        # Large model configuration
-        config = {
-            "repo_id": "xingyang1/Distill-Any-Depth", 
-            "filename": "large/model.safetensors",
-            "model_config": {
-                "encoder": "vitl", 
-                "features": 256, 
-                "out_channels": [256, 512, 1024, 1024], 
-                "use_bn": False, 
-                "use_clstoken": False, 
-                "max_depth": 150.0, 
-                "mode": 'disparity',
-                "pretrain_type": 'dinov2',
-                "del_mask_token": True
-            }
+        model_configs = {
+            "Distill-Any-Depth-Large": {
+                "repo_id": "xingyang1/Distill-Any-Depth", 
+                "filename": "large/model.safetensors",
+                "model_class": DepthAnything,
+                "model_config": {
+                    "encoder": "vitl", 
+                    "features": 256, 
+                    "out_channels": [256, 512, 1024, 1024], 
+                    "use_bn": False, 
+                    "use_clstoken": False, 
+                    "max_depth": 150.0, 
+                    "mode": 'disparity',
+                    "pretrain_type": 'dinov2',
+                    "del_mask_token": False 
+                },
+                "needs_key_fix": True  
+            },
+            "Distill-Any-Depth-Base": {
+                "repo_id": "xingyang1/Distill-Any-Depth", 
+                "filename": "base/model.safetensors",
+                "model_class": DepthAnythingV2 if DEPTH_ANYTHING_V2_AVAILABLE else DepthAnything,
+                "model_config": {
+                    "encoder": 'vitb',
+                    "features": 128,
+                    "out_channels": [96, 192, 384, 768],
+                } if DEPTH_ANYTHING_V2_AVAILABLE else {
+                    "encoder": 'vitb',
+                    "features": 128,
+                    "out_channels": [96, 192, 384, 768],
+                    "use_bn": False,
+                    "use_clstoken": False,
+                    "max_depth": 150.0,
+                    "mode": 'disparity',
+                    "pretrain_type": 'dinov2',
+                    "del_mask_token": True
+                },
+                "needs_key_fix": False  
+            },
+            "Distill-Any-Depth-Small": {
+                "repo_id": "xingyang1/Distill-Any-Depth", 
+                "filename": "small/model.safetensors",
+                "model_class": DepthAnythingV2 if DEPTH_ANYTHING_V2_AVAILABLE else DepthAnything,
+                "model_config": {
+                    "encoder": 'vits',
+                    "features": 64,
+                    "out_channels": [48, 96, 192, 384],
+                } if DEPTH_ANYTHING_V2_AVAILABLE else {
+                    "encoder": 'vits',
+                    "features": 64,
+                    "out_channels": [48, 96, 192, 384],
+                    "use_bn": False,
+                    "use_clstoken": False,
+                    "max_depth": 150.0,
+                    "mode": 'disparity',
+                    "pretrain_type": 'dinov2',
+                    "del_mask_token": True
+                },
+                "needs_key_fix": False  
+            },
+            "Distill-Any-Depth-Teacher-Large-2w-iter": {
+                "repo_id": "xingyang1/Distill-Any-Depth", 
+                "filename": "Distill-Any-Depth-Dav2-Teacher-Large-2w-iter/model.safetensors",
+                "model_class": DepthAnything,
+                "model_config": {
+                    "encoder": "vitl", 
+                    "features": 256, 
+                    "out_channels": [256, 512, 1024, 1024], 
+                    "use_bn": False, 
+                    "use_clstoken": False, 
+                    "max_depth": 150.0, 
+                    "mode": 'disparity',
+                    "pretrain_type": 'dinov2',
+                    "del_mask_token": False  
+                },
+                "needs_key_fix": True  
+            },
         }
+        
+        if model not in model_configs:
+            raise ValueError(f"Unsupported model: {model}")
+        
+        config = model_configs[model]
         
         # Get model path
         models_dir = folder_paths.models_dir
@@ -86,25 +163,39 @@ class DownloadDistillAnyDepthModel:
         
         # Load model
         print(f"Loading model: {model}")
+        print(f"Using model class: {config['model_class'].__name__}")
+        print(f"DepthAnythingV2 available: {DEPTH_ANYTHING_V2_AVAILABLE}")
         try:
-            # Initialize model
-            depth_model = DepthAnything(**config["model_config"])
+            # Initialize model with appropriate class
+            ModelClass = config["model_class"]
+            depth_model = ModelClass(**config["model_config"])
             depth_model = depth_model.to(device)
+            
+            # Handle mask_token parameter (for Base/Small models using DepthAnything)
+            if (not DEPTH_ANYTHING_V2_AVAILABLE and model != "Distill-Any-Depth-Large" and 
+                config["model_config"].get("del_mask_token", False) and 
+                hasattr(depth_model.backbone, 'mask_token')):
+                delattr(depth_model.backbone, 'mask_token')
+                print(f"Removed mask_token parameter to match pretrained weights")
             
             # Load weights
             model_weights = load_file(model_path)
             
-            # Fix key names: replace 'pretrained.' prefix with 'backbone.'
-            fixed_weights = {}
-            for key, value in model_weights.items():
-                if key.startswith('pretrained.'):
-                    new_key = key.replace('pretrained.', 'backbone.')
-                    fixed_weights[new_key] = value
-                else:
-                    fixed_weights[key] = value
-            
-            # Load weights
-            missing_keys, unexpected_keys = depth_model.load_state_dict(fixed_weights, strict=False)
+            # Handle weight loading based on model type and availability
+            if config["needs_key_fix"] or (not DEPTH_ANYTHING_V2_AVAILABLE and model != "Distill-Any-Depth-Large"):
+                # Large model or Base/Small models using DepthAnything: Fix key names
+                fixed_weights = {}
+                for key, value in model_weights.items():
+                    if key.startswith('pretrained.'):
+                        new_key = key.replace('pretrained.', 'backbone.')
+                        fixed_weights[new_key] = value
+                    else:
+                        fixed_weights[key] = value
+                
+                missing_keys, unexpected_keys = depth_model.load_state_dict(fixed_weights, strict=False)
+            else:
+                # Base/Small models using DepthAnythingV2: Load weights directly
+                missing_keys, unexpected_keys = depth_model.load_state_dict(model_weights, strict=False)
             
             if missing_keys:
                 print(f"Missing keys: {missing_keys}")
@@ -119,7 +210,8 @@ class DownloadDistillAnyDepthModel:
                 "model": depth_model,
                 "device": device,
                 "offload_device": offload_device,
-                "model_name": model
+                "model_name": model,
+                "model_type": "large" if model == "Distill-Any-Depth-Large" else "base_small"
             }
             
             print(f"Model {model} loaded successfully!")
