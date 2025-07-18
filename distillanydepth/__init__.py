@@ -10,5 +10,5 @@ try:
     
     __all__ = ['DepthAnything', 'chw2hwc', 'colorize_depth_maps', 'Resize', 'NormalizeImage', 'PrepareForNet']
 except ImportError as e:
-    print(f"警告: 部分模块导入失败: {e}")
+    print(f"warning: some modules import failed: {e}")
     __all__ = [] 
