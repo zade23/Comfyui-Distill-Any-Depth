@@ -1,6 +1,6 @@
 # Comfyui-Distill-Any-Depth
 
-ComfyUI nodes to use Distill-Any-Depth prediction.
+[ComfyUI](https://github.com/comfyanonymous/ComfyUI) nodes to use [Distill-Any-Depth](https://distill-any-depth-official.github.io/) prediction.
 
 ![](./example_workflows/workflow.png)
 
@@ -11,6 +11,7 @@ Huggingface demo: https://huggingface.co/spaces/xingyang1/Distill-Any-Depth
 ## Updates
 
 - [2025-07-18] 🌟🌟🌟 Support `small`, `base`, `teacher-large` model.
+- [2025-07-14] Support `Large` model.
 
 ## How to Use
 
@@ -32,4 +33,6 @@ Run ComfyUI → `Manager` → `Custom Nodes Manager` → search and install `Com
 
 ## Acknowledgements
 
-This ComfyUI node implementation is based on the excellent work from [Distill-Any-Depth](https://github.com/Westlake-AGI-Lab/Distill-Any-Depth). We are grateful to the authors for their outstanding research and for making their code publicly available.
+This ComfyUI node implementation is based on the excellent work from [Distill-Any-Depth](https://github.com/Westlake-AGI-Lab/Distill-Any-Depth). 
+
+We are grateful to the authors for their outstanding research and for making their code publicly available.
