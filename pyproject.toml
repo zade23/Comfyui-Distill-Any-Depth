@@ -29,7 +29,7 @@ Documentation = "https://github.com/zade23/Comfyui-Distill-Any-Depth/wiki"
 "Bug Tracker" = "https://github.com/zade23/Comfyui-Distill-Any-Depth/issues"
 
 [tool.comfy]
-PublisherId = ""
+PublisherId = "zhandroid"
 DisplayName = "Comfyui-Distill-Any-Depth"
 Icon = ""
 includes = [] 
