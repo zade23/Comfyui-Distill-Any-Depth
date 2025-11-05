@@ -15,9 +15,21 @@ Huggingface demo: https://huggingface.co/spaces/xingyang1/Distill-Any-Depth
 
 ## How to Use
 
+This video demonstrates how to download and use nodes in ComfyUI.
+
+
+
+https://github.com/user-attachments/assets/13ae515c-af85-4d2d-8b3c-6c62e3f79a86
+
+
+
 ### ComfyUI-Manager
 
-Run ComfyUI → `Manager` → `Custom Nodes Manager` → search and install `Comfyui-Distill-Any-Depth`
+1. Run ComfyUI
+2. `Manager` → `Custom Nodes Manager`
+3. search and install `Comfyui-Distill-Any-Depth`
+4. Run the Distill-any-thing node and enjoy it.
+> Typically, the inference model will be automatically downloaded to the `/models/distill_any_depth` directory on the first run.
 
 ### Git Clone
 
