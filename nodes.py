@@ -234,7 +234,7 @@ class DistillAnyDepthProcessImage:
                     "step": 16,
                     "tooltip": "Processing resolution, must be multiple of 14"
                 }),
-                "output_type": (["colorized", "grayscale"], {
+                "output_type": (["colorized", "grayscale", "grayscale 16-bit"], {
                     "default": "colorized",
                     "tooltip": "Output type: colorized depth map or grayscale depth map"
                 }),
@@ -317,12 +317,22 @@ class DistillAnyDepthProcessImage:
             depth_gray_hwc = np.stack([depth_gray] * 3, axis=-1)
             depth_gray_hwc = cv2.resize(depth_gray_hwc, (w, h), cv2.INTER_LINEAR)
             output_image = depth_gray_hwc
+
+        elif output_type == "grayscale 16-bit":
+            # 16-bit Grayscale depth map
+            depth_gray = (pred_disp_normalized * 65536).astype(np.uint16)
+            depth_gray_hwc = np.stack([depth_gray] * 3, axis=-1)
+            depth_gray_hwc = cv2.resize(depth_gray_hwc, (w, h), cv2.INTER_LINEAR)
+            output_image = depth_gray_hwc
         
         # Move model back to offload device
         model = model.to(offload_device)
         
         # Convert back to ComfyUI format
-        output_image = output_image.astype(np.float32) / 255.0
+        if output_type == "grayscale 16-bit":
+            output_image = output_image.astype(np.float32) / 65536.0
+        else:
+            output_image = output_image.astype(np.float32) / 255.0
         output_tensor = torch.from_numpy(output_image).unsqueeze(0)
         
         return (output_tensor,)
